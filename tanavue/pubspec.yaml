@@ -33,6 +33,7 @@ dependencies:
   shelf: ^1.4.0
   shelf_router: ^1.1.4
   http: ^0.13.6
+  firebase_database: ^10.4.0
   firebase_core: ^2.24.2
   firebase_auth: ^4.15.3
   logger: ^2.0.2
