@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "944199132408",
+    "firebase_url": "https://tanavue-database-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "tanavue-database",
+    "storage_bucket": "tanavue-database.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:944199132408:android:32bf0bab4aae5af8c8c70d",
+        "android_client_info": {
+          "package_name": "com.example.tanavue"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDSdGeAwQyS-a9YZHvyMAXdqWApyOsYdOU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
