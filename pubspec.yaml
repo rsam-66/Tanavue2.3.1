@@ -33,6 +33,7 @@ dependencies:
   shelf: ^1.4.0
   shelf_router: ^1.1.4
   http: ^0.13.6
+  firebase_auth: ^4.15.3
   firebase_core: ^2.0.0
   firebase_database: ^10.0.0
   firebase_storage: ^11.0.0
@@ -98,3 +99,7 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+assets:
+    - assets/images/logo_google.png
+    - assets/images/logo_tanavue.png
