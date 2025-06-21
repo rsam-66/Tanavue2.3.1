@@ -70,7 +70,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   children: <Widget>[
                     SizedBox(height: screenHeight * 0.01),
                     Center(
-                      child: Image.asset(
+                      child: Image.asset( 
                         'assets/images/logo_tanavue.png',
                         width: 180, // Sedikit diperbesar agar sesuai desain
                         height: 180,
