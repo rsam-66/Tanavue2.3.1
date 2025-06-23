@@ -548,3 +548,31 @@ String extractHari(String input) {
   final match = RegExp(r'(\d+)\s*Hari').firstMatch(input);
   return match != null ? '${match.group(1)} Hari' : '';
 }
+
+Widget buildPlantCard(Map<String, dynamic> plant) {
+  if (plant['sisaHari'] == 'Panen Hari Ini! Cek Tanaman Kamu!') {
+    return Card(
+      color: Colors.green[50],
+      elevation: 3,
+      margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: ListTile(
+        leading: Icon(Icons.agriculture, color: Colors.green),
+        title: Text(
+          '🌾 Panen Hari Ini!',
+          style:
+              TextStyle(fontWeight: FontWeight.bold, color: Colors.green[800]),
+        ),
+        subtitle: Text('Tanaman: ${plant['namaTanaman']}'),
+      ),
+    );
+  } else {
+    return Card(
+      margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      child: ListTile(
+        title: Text(plant['namaTanaman']),
+        subtitle: Text('${plant['sisaBulan']} • ${plant['sisaHari']}'),
+      ),
+    );
+  }
+}
