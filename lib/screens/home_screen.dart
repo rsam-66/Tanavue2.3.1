@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart'; // --- TAMBAHAN IMPORT ---
+import 'package:cloud_firestore/cloud_firestore.dart'; // --- TAMBAHAN IMPORT ---
+import 'package:tanavue/screens/profile_page.dart';
 import '../controllers/home_controller.dart';
 import '../controllers/monitoring_controller.dart';
 import '../models/panen_model.dart';
@@ -38,7 +41,6 @@ class _HomeScreenState extends State<HomeScreen> {
       });
     });
 
-    // Reuse monitoring data
     monitorController.streamPlantData().listen((plantMap) {
       setState(() {
         humidity = plantMap['humidity'];
@@ -52,6 +54,64 @@ class _HomeScreenState extends State<HomeScreen> {
     final result = await controller.fetchPanenPredictions();
     setState(() => predictions = result);
   }
+
+  // =======================================================================
+  // --- WIDGET BARU UNTUK AVATAR PROFIL ---
+  // =======================================================================
+  Widget _buildProfileAvatar() {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      // Jika user tidak login, tampilkan avatar default
+      return const CircleAvatar(backgroundColor: Colors.green, radius: 22);
+    }
+
+    // Gunakan StreamBuilder untuk mendengarkan perubahan data user secara real-time
+    return StreamBuilder<DocumentSnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .snapshots(),
+      builder: (context, snapshot) {
+        // Jika data belum siap, tampilkan avatar abu-abu
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const CircleAvatar(backgroundColor: Colors.grey, radius: 22);
+        }
+
+        if (!snapshot.hasData || !snapshot.data!.exists) {
+          // Jika tidak ada data, tampilkan avatar default
+          return const CircleAvatar(backgroundColor: Colors.green, radius: 22);
+        }
+
+        // Ambil data user
+        var userData = snapshot.data!.data() as Map<String, dynamic>;
+        String? imageUrl = userData['profilePictureUrl'];
+
+        // Buat avatar bisa diklik untuk ke halaman profil
+        return GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => const ProfileSettingsScreen()),
+            );
+          },
+          child: CircleAvatar(
+            radius: 22, // Sesuaikan ukurannya
+            backgroundColor:
+                Colors.green, // Warna latar jika gambar gagal dimuat
+            backgroundImage: imageUrl != null ? NetworkImage(imageUrl) : null,
+            child: imageUrl == null
+                ? const Icon(Icons.person,
+                    color: Colors.white, size: 28) // Ikon jika tidak ada foto
+                : null,
+          ),
+        );
+      },
+    );
+  }
+  // =======================================================================
+  // --- AKHIR DARI WIDGET BARU ---
+  // =======================================================================
 
   @override
   Widget build(BuildContext context) {
@@ -70,12 +130,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text("Welcome", style: textStyle.headlineSmall),
-                  IconButton(
-                    icon: const CircleAvatar(backgroundColor: Colors.green),
-                    onPressed: () {
-                      // TODO: profile navigation
-                    },
-                  ),
+                  _buildProfileAvatar(), // <--- PANGGIL WIDGET BARU DI SINI
                 ],
               ),
               SizedBox(
@@ -92,7 +147,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 mode: LaunchMode.externalApplication),
                             child: Container(
                               width: 280,
-                              margin: const EdgeInsets.only(right: 12, left: 4),
+                              margin: const EdgeInsets.only(
+                                  right: 12, left: 4, top: 16),
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
                                 color: Colors.grey.shade300,
@@ -180,26 +236,6 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-
-  // Widget _newsItem(String title, String subtitle) {
-  //   return Container(
-  //     width: 280,
-  //     margin: const EdgeInsets.only(right: 12, left: 4),
-  //     padding: const EdgeInsets.all(16),
-  //     decoration: BoxDecoration(
-  //       color: Colors.grey.shade300,
-  //       borderRadius: BorderRadius.circular(20),
-  //     ),
-  //     child: Column(
-  //       crossAxisAlignment: CrossAxisAlignment.start,
-  //       children: [
-  //         Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-  //         const SizedBox(height: 8),
-  //         Text(subtitle, style: const TextStyle(fontSize: 13)),
-  //       ],
-  //     ),
-  //   );
-  // }
 
   Widget _buildMonitorCard(
       String title, String value, Color color, IconData icon) {
