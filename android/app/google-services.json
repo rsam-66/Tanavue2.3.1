@@ -13,7 +13,20 @@
           "package_name": "com.example.tanavue"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "944199132408-r67cas0j9uhvouk7vv2nhat59cual736.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.tanavue",
+            "certificate_hash": "128ad3cf9f17a1a4873b9d8cebd5622e0c1e0d72"
+          }
+        },
+        {
+          "client_id": "944199132408-6qbmsheg33f89dmna2tjod95ob3bg8g2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDSdGeAwQyS-a9YZHvyMAXdqWApyOsYdOU"
@@ -21,7 +34,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "944199132408-6qbmsheg33f89dmna2tjod95ob3bg8g2.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "944199132408-ir1ba12o3fcbbcsaf34umo659o3k06cb.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.tanavue"
+              }
+            }
+          ]
         }
       }
     }

@@ -1,10 +1,11 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+// Pastikan path ke controller Anda sudah benar
 import 'package:tanavue/controllers/auth_controller.dart';
 import 'package:tanavue/screens/home_screen.dart';
 import '../utils/app_colors.dart';
 import '../utils/app_strings.dart';
-import '../utils/custom_page_route.dart';
+import '../utils/custom_page_route.dart'; // Ini bisa dihapus jika tidak digunakan lagi
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -17,6 +18,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  // --- PENYESUAIAN --- Controller di-final agar tidak bisa diubah setelah inisialisasi
   final SignInController _signInController = SignInController();
 
   bool _obscurePassword = true;
@@ -35,36 +37,67 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _loginUser() async {
-    if (_formKey.currentState!.validate()) {
+    // Validasi form
+    if (_formKey.currentState?.validate() ?? false) {
       String email = _emailController.text.trim();
       String password = _passwordController.text.trim();
       print('🔐 Login attempt: $email');
 
       try {
-        final user = await _signInController.signIn(email, password);
-        if (user != null) {
+        final user = await _signInController.signInWithEmail(email, password);
+        // --- PENYESUAIAN --- Gunakan pengecekan 'mounted'
+        if (user != null && mounted) {
           print('✅ Login success: ${user.email}');
-          Navigator.of(context).pushReplacement(
-            FadePageRoute(page: const HomeScreen()),
-          );
+          // Gunakan navigasi bernama agar konsisten dengan setup di main.dart
+          Navigator.of(context).pushReplacementNamed('/home');
         }
       } catch (e) {
         print('❌ Login failed: $e');
-        showDialog(
-          context: context,
-          builder: (_) => AlertDialog(
-            title: const Text("Login Gagal"),
-            content: Text(e.toString().replaceAll('Exception:', '').trim()),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text("OK"),
-              )
-            ],
-          ),
-        );
+        // --- PENYESUAIAN --- Gunakan pengecekan 'mounted'
+        if (mounted) {
+          _showErrorDialog(e.toString());
+        }
       }
     }
+  }
+
+  // --- TAMBAHAN --- Fungsi baru untuk menangani Login dengan Google
+  void _loginWithGoogle() async {
+    print('🔐 Google Login attempt');
+    try {
+      final user = await _signInController.signInWithGoogle();
+      // Jika user tidak null (login berhasil) dan widget masih ada di tree
+      if (user != null && mounted) {
+        print('✅ Google Login success: ${user.email}');
+        Navigator.of(context).pushReplacementNamed('/home');
+      }
+      // Jika user null (misalnya pengguna membatalkan), tidak perlu melakukan apa-apa
+    } catch (e) {
+      // --- INI BARIS YANG BERBEDA DAN SANGAT PENTING ---
+      print('❌❌❌ GOOGLE SIGN IN FAILED - SPECIFIC ERROR: $e');
+
+      if (mounted) {
+        // Dialog ini akan tetap menampilkan pesan, tapi kita butuh yang di console
+        _showErrorDialog(e.toString());
+      }
+    }
+  }
+
+  // --- TAMBAHAN --- Helper function untuk menampilkan dialog error agar tidak duplikat kode
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text("Login Gagal"),
+        content: Text(message.replaceAll('Exception:', '').trim()),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("OK"),
+          )
+        ],
+      ),
+    );
   }
 
   @override
@@ -81,7 +114,7 @@ class _LoginScreenState extends State<LoginScreen> {
               minHeight: screenHeight -
                   MediaQuery.of(context).padding.top -
                   MediaQuery.of(context).padding.bottom -
-                  48,
+                  48, // Padding vertikal total
             ),
             child: IntrinsicHeight(
               child: Form(
@@ -145,10 +178,15 @@ class _LoginScreenState extends State<LoginScreen> {
                         contentPadding: const EdgeInsets.symmetric(
                             vertical: 16.0, horizontal: 20.0),
                       ),
-                      keyboardType: TextInputType.text,
+                      keyboardType:
+                          TextInputType.emailAddress, // Lebih spesifik
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Masukkan Email Anda';
+                        }
+                        // Validasi format email sederhana
+                        if (!RegExp(r'\S+@\S+\.\S+').hasMatch(value)) {
+                          return 'Masukkan format email yang valid';
                         }
                         return null;
                       },
@@ -219,6 +257,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               recognizer: TapGestureRecognizer()
                                 ..onTap = () {
                                   print('Ganti Password Tapped');
+                                  // TODO: Implementasi logika Lupa Password
                                 },
                             ),
                           ],
@@ -292,10 +331,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       ],
                     ),
                     const SizedBox(height: 20),
+                    // --- PENYESUAIAN --- Hubungkan tombol ke fungsi _loginWithGoogle
                     ElevatedButton.icon(
-                      onPressed: () {
-                        print('Google Login Tapped');
-                      },
+                      onPressed: _loginWithGoogle,
                       icon: Image.asset(
                         'assets/images/logo_google.png',
                         height: 20.0,

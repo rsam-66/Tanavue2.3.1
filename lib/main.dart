@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart'; // <-- Tambahkan import ini
 import 'firebase_options.dart';
 
 // Import semua screen yang akan digunakan dalam rute navigasi
@@ -8,20 +9,36 @@ import 'screens/signup_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/monitoring_screen.dart';
 import 'screens/panen_screen.dart';
-import 'screens/profile_page.dart'; // Nama file untuk ProfileSettingsScreen
+import 'screens/profile_page.dart';
 
 void main() async {
-  // Blok ini tidak berubah, sudah benar untuk inisialisasi Firebase
+  // Inisialisasi Firebase, tidak ada perubahan di sini
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  runApp(const MyApp());
+  // --- PENAMBAHAN LOGIKA AUTO SIGN-IN ---
+  // Periksa apakah ada pengguna yang sedang login saat aplikasi dimulai.
+  // FirebaseAuth.instance.currentUser akan berisi objek User jika ada sesi yang aktif,
+  // dan akan null jika tidak ada.
+  final User? currentUser = FirebaseAuth.instance.currentUser;
+
+  // Tentukan rute awal berdasarkan status login pengguna
+  final String initialRoute = currentUser == null ? '/login' : '/home';
+  // Jika currentUser null -> arahkan ke '/login'
+  // Jika currentUser tidak null -> arahkan ke '/home'
+
+  // Jalankan aplikasi dengan rute awal yang sudah ditentukan
+  runApp(MyApp(initialRoute: initialRoute));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  // Tambahkan variabel untuk menampung initialRoute
+  final String initialRoute;
+
+  // Modifikasi constructor untuk menerima initialRoute
+  const MyApp({super.key, required this.initialRoute});
 
   @override
   Widget build(BuildContext context) {
@@ -33,25 +50,17 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
 
-      // --- PERUBAHAN UTAMA DI SINI ---
+      // Gunakan variabel initialRoute yang sudah ditentukan di fungsi main
+      initialRoute: initialRoute,
 
-      // 1. Tentukan rute awal aplikasi.
-      // Aplikasi akan dimulai dari '/login'.
-      initialRoute: '/login',
-
-      // 2. Hapus properti 'home'. 'initialRoute' dan 'routes' akan menggantikannya.
-
-      // 3. Definisikan semua rute bernama (named routes) yang digunakan di aplikasi Anda.
-      // Ini adalah "peta" yang memberi tahu Flutter screen mana yang harus ditampilkan
-      // untuk setiap nama rute.
+      // Definisi rute Anda tetap sama dan tidak diubah
       routes: {
         '/login': (context) => const LoginScreen(),
         '/signup': (context) => const SignUpScreen(),
         '/home': (context) => const HomeScreen(),
         '/monitoring': (context) => const MonitoringDataScreen(),
         '/panen': (context) => const PanenScreen(),
-        '/profile': (context) =>
-            const ProfileSettingsScreen(), // Pastikan nama kelas benar
+        '/profile': (context) => const ProfileSettingsScreen(),
       },
     );
   }
